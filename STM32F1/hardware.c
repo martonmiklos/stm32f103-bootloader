@@ -81,7 +81,7 @@ void setupCLK(void)
 #endif /* HSE_STARTUP_TIMEOUT */   
 
     StartUpCounter = HSE_STARTUP_TIMEOUT;
-    while (((RCC->CR & 0x03000000) == 0) && --StartUpCounter);
+    while (((RCC->CR & 0x03000000) == 0) && --StartUpCounter) {}
 	
 	if (!StartUpCounter) {
 		// HSE has not started. Try restarting the processor
