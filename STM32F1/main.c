@@ -31,6 +31,7 @@
 
 #include "common.h"
 #include "dfu.h"
+#include "hardware.h"
 
 
 #define SW_ONLY 		1
@@ -46,16 +47,11 @@ static int checkUserJump(u8 sw)
 	switch (sw) {
 		case SW_ONLY: return readButtonState();
 		case FLASH_ONLY: {
-			return (!(checkUserCode(USER_CODE_FLASH0X8005000)
-			       || checkUserCode(USER_CODE_FLASH0X8002000))
-			);
+			return !checkUserCode(USER_CODE_FLASH0X8002000);
 		}
 	}
 
-	return (readButtonState() ||
-			(!(checkUserCode(USER_CODE_FLASH0X8005000)
-			|| checkUserCode(USER_CODE_FLASH0X8002000)))
-	);
+	return (readButtonState() || (!(checkUserCode(USER_CODE_FLASH0X8002000))));
 }
 
 static u32 checkReset()
@@ -145,14 +141,6 @@ int main()
 
 	if (checkUserCode(USER_CODE_FLASH0X8002000))  {
 		jumpToUser(USER_CODE_FLASH0X8002000);
-	} else {
-		if (checkUserCode(USER_CODE_FLASH0X8005000)) {
-			jumpToUser(USER_CODE_FLASH0X8005000);
-		}  else {
-			// Nothing to execute in either Flash or RAM
-			strobePin(LED_BANK, LED_PIN, 10, BLINK_FAST, LED_ON_STATE);
-			systemHardReset();
-		}
 	}
 
 	return 0;

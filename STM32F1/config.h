@@ -52,8 +52,7 @@
 
 // do we enter bootloader on certain reset methods only?
 #define RESET_ACTIVATION 			(RESET_POR | RESET_EXT)
-// how about the button? can it override this? uncomment if so
-#define BL_BUTTON_ALWAYS_WORKS
+
 
 // The USB clock bit is the same for all boards
 #define RCC_APB1ENR_USB_CLK   		0x00800000 
@@ -62,7 +61,6 @@
 #define LARGEST_FLASH_PAGE_SIZE 	0x800
 
 // Jump locations for legacy (0x8005000) and new / smaller (0x8002000) bootloader
-#define USER_CODE_FLASH0X8005000   	((u32)0x08005000)
 #define USER_CODE_FLASH0X8002000	((u32)0x08002000)
 
 // Upload to RAM has been removed / depreacted so these values a not used any more
@@ -358,6 +356,16 @@
 						 ' ',0,'v',0,VER_MAJOR,0,'.',0,VER_MINOR,0,' ',0,' ',0,'U',0,'p',0,'l',0,'o',0,'a',0,'d',0, \
 						 ' ',0,'t',0,'o',0,' ',0,'F',0,'l',0,'a',0,'s',0,'h',0,' ',0,'0',0,'x',0,'8',0,'0',0,'0',0, \
 						 '2',0,'0',0,'0',0,'0',0
+#elif defined XLINEUSB
+
+    #define LED_BANK         GPIOB
+    #define LED_PIN          5
+    #define LED_ON_STATE     1
+
+    #define CUSTOM_ALT_STRINGS
+    #define ALT0_STR_LEN 42
+    #define ALT0_MSG_STR 'X', 0, 'L', 0, 'i', 0, 'N', 0, 'E', 0, '-', 0, 'U', 0, 'S', 0, 'B', 0, ' ', 0, \
+                         'b', 0, 'o', 0, 'o', 0, 't', 0, 'l', 0, 'o', 0, 'a', 0, 'd', 0, 'e', 0, 'r', 0,
 
 #else
 	
@@ -398,20 +406,9 @@
 #endif
 
 #ifndef CUSTOM_ALT_STRINGS
-#define ALT0_STR_LEN 0x66
+
+#define ALT0_STR_LEN 0x62
 #define ALT0_MSG_STR 'S',0,'T',0,'M',0,'3',0,'2',0,' ',0,'B',0,'o',0,'o',0,'t',0,'l',0,'o',0,'a',0,'d',0,'e',0, \
-				     'r',0,' ',0,'v',0,VER_MAJOR,0,'.',0,VER_MINOR,0,' ',0,' ',0,'U',0,'p',0,'l',0,'o',0,'a',0, \
-				     'd',0,' ',0,'t',0,'o',0,' ',0,'R',0,'A',0,'M',0,' ',0,'n',0,'o',0,'t',0,' ',0,'s',0,'u',0, \
-				     'p',0,'p',0,'o',0,'r',0,'t',0,'e',0,'d',0
-
-#define ALT1_STR_LEN 0x62
-#define ALT1_MSG_STR 'S',0,'T',0,'M',0,'3',0,'2',0,' ',0,'B',0,'o',0,'o',0,'t',0,'l',0,'o',0,'a',0,'d',0,'e',0, \
-				     'r',0,' ',0,'v',0,VER_MAJOR,0,'.',0,VER_MINOR,0,' ',0,' ',0,'U',0,'p',0,'l',0,'o',0,'a',0, \
-				     'd',0,' ',0,'t',0,'o',0,' ',0,'F',0,'l',0,'a',0,'s',0,'h',0,' ',0,'0',0,'x',0,'8',0,'0',0, \
-				     '0',0,'5',0,'0',0,'0',0,'0',0
-
-#define ALT2_STR_LEN 0x62
-#define ALT2_MSG_STR 'S',0,'T',0,'M',0,'3',0,'2',0,' ',0,'B',0,'o',0,'o',0,'t',0,'l',0,'o',0,'a',0,'d',0,'e',0, \
 				     'r',0,' ',0,'v',0,VER_MAJOR,0,'.',0,VER_MINOR,0,' ',0,' ',0,'U',0,'p',0,'l',0,'o',0,'a',0, \
 				     'd',0,' ',0,'t',0,'o',0,' ',0,'F',0,'l',0,'a',0,'s',0,'h',0,' ',0,'0',0,'x',0,'8',0,'0',0, \
 				     '0',0,'2',0,'0',0,'0',0,'0',0

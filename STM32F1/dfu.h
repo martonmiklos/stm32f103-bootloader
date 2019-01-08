@@ -32,7 +32,7 @@
 #define DFU_UPLOAD_FLASH_0X8005000 2
 #define DFU_UPLOAD_FLASH_0X8002000 3
 */
-typedef enum {DFU_UPLOAD_NONE, DFU_UPLOAD_RAM, DFU_UPLOAD_FLASH_0X8005000,DFU_UPLOAD_FLASH_0X8002000} dfuUploadTypes_t;
+typedef enum {DFU_UPLOAD_NONE, DFU_UPLOAD_FLASH_0X8002000} dfuUploadTypes_t;
 
 /* exposed types */
 typedef u8 *(*ClassReqCB)(u16);

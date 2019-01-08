@@ -66,7 +66,6 @@ void dfuInit(void) {
     thisBlockLen = 0;;
     userAppAddr = USER_CODE_RAM; /* default RAM user code location */
     userAppEnd = RAM_END;
-    userUploadType=DFU_UPLOAD_NONE;
     code_copy_lock = WAIT;
     dfuBusy = FALSE;
 }
@@ -90,46 +89,11 @@ bool dfuUpdateByRequest(void) {
             if (pInformation->USBwLengths.w > 0) {
                 userFirmwareLen = 0;
                 dfuAppStatus.bState  = dfuDNLOAD_SYNC;
-				switch(pInformation->Current_AlternateSetting) {
-					/*
-					Roger Clark. removed upload to RAM option
-					case 0:
-					    userAppAddr = USER_CODE_RAM;
-						userUploadType = DFU_UPLOAD_RAM;
-						break;
-						*/
+                userAppAddr = USER_CODE_FLASH0X8002000;
 
-					case 1:
-					    userAppAddr = USER_CODE_FLASH0X8005000;
-						userUploadType = DFU_UPLOAD_FLASH_0X8005000;
-						
-						/* make sure the flash is setup properly, unlock it */
-						setupFLASH();
-						flashUnlock();
-						
-                        /* Clear lower memory so that we can check on cold boot, whether
-                           the last upload was to 0x8002000 or 0x8005000 */
-						flashErasePage((u32)USER_CODE_FLASH0X8002000);
-
-						break;
-
-					case 2:
-						userUploadType = DFU_UPLOAD_FLASH_0X8002000;
-						userAppAddr = USER_CODE_FLASH0X8002000;
-						
-                        /* make sure the flash is setup properly, unlock it */
-                        setupFLASH();
-						flashUnlock();
-
-						break;
-
-					default:
-					    // Roger Clark. Report error 
-						dfuAppStatus.bState  = dfuERROR;
-						dfuAppStatus.bStatus = errWRITE;
-
-						break;
-				}
+                /* make sure the flash is setup properly, unlock it */
+                setupFLASH();
+                flashUnlock();
             } else {
                 dfuAppStatus.bState  = dfuERROR;
                 dfuAppStatus.bStatus = errNOTDONE;
@@ -145,30 +109,9 @@ bool dfuUpdateByRequest(void) {
             /* calculate where the data should be copied from */
             userFirmwareLen = uploadBlockLen * pInformation->USBwValue;
 			
-            switch(pInformation->Current_AlternateSetting) {
-			/*
-				case 0:
-					userAppAddr = USER_CODE_RAM;
-					userAppEnd = RAM_END;
-					*/
-
-				case 1:
-				    userAppAddr = USER_CODE_FLASH0X8005000;
-					userAppEnd = getFlashEnd();
-					break;
-
-				case 2: 
-				    userAppAddr = USER_CODE_FLASH0X8002000;
-					userAppEnd = getFlashEnd();
-					break;
-
-				default:
-				// Roger Clark. 
-				// Changed this to report error that its unable to write to this memory
-				// However the code should never get here as only AlternateSetting 1 and 2 are allowed (see above)
-					dfuAppStatus.bState  = dfuERROR;
-					dfuAppStatus.bStatus = errWRITE;
-					break;					
+            if (pInformation->Current_AlternateSetting == 0) {
+                userAppAddr = USER_CODE_FLASH0X8002000;
+                userAppEnd = getFlashEnd();
 			}
         } else if (pInformation->USBbRequest == DFU_ABORT) {
             dfuAppStatus.bState  = dfuIDLE;
@@ -401,38 +344,15 @@ u8 *dfuCopyUPLOAD(u16 length) {
     }
 }
 
-void dfuCopyBufferToExec() {
+void dfuCopyBufferToExec()
+{
     int i;
-    u32 *userSpace;
-	
-/* Roger Clark. 
-	Commented out code associated with upload to RAM
+    u32 *userSpace = (u32 *)(USER_CODE_FLASH0X8002000 + userFirmwareLen);
 
-    if (userUploadType == DFU_UPLOAD_RAM) 
-	{
-        userSpace = (u32 *)(USER_CODE_RAM + userFirmwareLen);
-        // we dont need to handle when thisBlock len is not divisible by 4,
-        //   since the linker will align everything to 4B anyway 
-        for (i = 0; i < thisBlockLen; i = i + 4) {
-            *userSpace++ = *(u32 *)(recvBuffer + i);
-        }
-    } 
-	else 
-*/
-	{
-		if (userUploadType == DFU_UPLOAD_FLASH_0X8005000) {
-			userSpace = (u32 *)(USER_CODE_FLASH0X8005000 + userFirmwareLen);
-		}
-		else {
-			userSpace = (u32 *)(USER_CODE_FLASH0X8002000 + userFirmwareLen);		
-		}
+    flashErasePage((u32)(userSpace));
 
-        flashErasePage((u32)(userSpace));
-
-        for (i = 0; i < thisBlockLen; i = i + 4) {
-            flashWriteWord((u32)(userSpace++), *(u32 *)(recvBuffer +i));
-        }
-
+    for (i = 0; i < thisBlockLen; i = i + 4) {
+        flashWriteWord((u32)(userSpace++), *(u32 *)(recvBuffer +i));
     }
 
     userFirmwareLen += thisBlockLen;

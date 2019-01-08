@@ -25,7 +25,6 @@
 #ifndef __HARDWARE_H
 #define __HARDWARE_H
 
-
 #include "stm32f10x_type.h"
 #include "cortexm3_macro.h"
 #include "common.h"
@@ -185,9 +184,13 @@ typedef struct {
 void gpio_write_bit(u32 bank, u8 pin, u8 val);
 unsigned int crMask(int pin);
 
-bool readPin(u32 bank, u8 pin);
 void strobePin(u32 bank, u8 pin, u8 count, u32 rate,u8 onState);
+
+#if defined(BUTTON_BANK) && defined (BUTTON_PIN) && defined (BUTTON_ON_STATE)
 bool readButtonState();
+#else
+#define readButtonState() FALSE
+#endif
 
 void systemHardReset(void);
 void systemReset(void);

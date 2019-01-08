@@ -402,10 +402,8 @@ RESULT usbNoDataSetup(u8 request)
 
 RESULT usbGetInterfaceSetting(u8 interface, u8 altSetting)
 {
-    // alt setting 0 -> program RAM, alt setting 1 or higher -> FLASH
-    if (interface > NUM_ALT_SETTINGS) {
+    if (interface > NUM_ALT_SETTINGS)
         return USB_UNSUPPORT;
-    }
 
     return USB_SUCCESS;
 }

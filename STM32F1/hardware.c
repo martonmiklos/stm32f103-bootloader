@@ -335,20 +335,12 @@ void gpio_write_bit(u32 bank, u8 pin, u8 val) {
     REG_SET(GPIO_BSRR(bank), (1U << pin) << (16 * val));
 }
 
-bool readPin(u32 bank, u8 pin) {
-    // todo, implement read
-    if (REG_GET(GPIO_IDR(bank)) & (0x01 << pin)) {
-        return TRUE;
-    } else {
-        return FALSE;
-    }
-}
+#if defined(BUTTON_BANK) && defined (BUTTON_PIN) && defined (BUTTON_ON_STATE)
 
 bool readButtonState()
 {
     bool state = FALSE;
 
-#if defined(BUTTON_BANK) && defined (BUTTON_PIN) && defined (BUTTON_ON_STATE)   
     if (REG_GET(GPIO_IDR(BUTTON_BANK)) & (0x01 << BUTTON_PIN))  {
         state = TRUE;
     } 
@@ -356,10 +348,10 @@ bool readButtonState()
     if (BUTTON_ON_STATE==0) {
         state = !state;
     }
-#endif
 
     return state;
 }
+#endif
 
 void strobePin(u32 bank, u8 pin, u8 count, u32 rate,u8 onState) 
 {
