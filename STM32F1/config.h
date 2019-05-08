@@ -371,8 +371,8 @@
     #endif
 
     #ifndef USB_SERIAL_STR_LEN
-    #define USB_SERIAL_STR_LEN 0x10
-    #define USB_SERIAL_MSG_STR 'L', 0, 'L', 0, 'M', 0, ' ', 0, '0', 0, '0', 0, '3', 0
+    #define USB_SERIAL_STR_LEN 2
+    #define USB_SERIAL_MSG_STR
     #endif
 
     #define CUSTOM_ALT_STRINGS
