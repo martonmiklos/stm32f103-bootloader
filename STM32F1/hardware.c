@@ -40,7 +40,7 @@ static NVIC_TypeDef *NVIC = (NVIC_TypeDef *)NVIC_BASE;
 
 
 /* system init shit */
-void systemReset(void)
+inline void systemReset(void)
 {
     /* TODO: say what this does */
     RCC->CR   |= 0x00000001;
@@ -53,7 +53,7 @@ void systemReset(void)
     RCC->CIR   = 0x00000000;
 }
 
-void setupCLK(void)
+inline void setupCLK(void)
 {
 	unsigned int StartUpCounter=0;
     
@@ -67,8 +67,10 @@ void setupCLK(void)
     FLASH->ACR = 0x00000012;
 	
     // Configure PLL
-#ifdef XTAL12M
+#if defined(XTAL12M)
     RCC->CFGR |= 0x00110400; /* pll=72Mhz(x6),APB1=36Mhz,AHB=72Mhz */
+#elif defined(XTAL16M)
+    RCC->CFGR |= 0x0045440a; /* pll=72Mhz(x9),APB1=24Mhz,AHB=48Mhz */
 #else
     RCC->CFGR |= 0x001D0400; /* pll=72Mhz(x9),APB1=36Mhz,AHB=72Mhz */
 #endif
@@ -100,7 +102,7 @@ void setupCLK(void)
 }
 
 
-void setupLEDAndButton (void)
+inline void setupLEDAndButton (void)
 { 
     // clear PA15, which is a now-disabled JTAG pin that is otherwise on because of JTAG hardware
     REG_SET(GPIO_CR(GPIOA, 15),
