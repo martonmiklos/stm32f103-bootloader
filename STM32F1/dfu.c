@@ -37,7 +37,6 @@
 
 
 /* DFU globals */
-static volatile u32 userAppAddr = USER_CODE_RAM; /* default RAM user code location */
 static volatile u32 userAppEnd = RAM_END;
 static volatile DFUStatus dfuAppStatus;       /* includes state */
 volatile dfuUploadTypes_t userUploadType = DFU_UPLOAD_NONE;
@@ -55,7 +54,8 @@ static volatile u16 uploadBlockLen = 0;
 volatile PLOT code_copy_lock;
 
 /* todo: force dfu globals to be singleton to avoid re-inits? */
-void dfuInit(void) {
+void dfuInit(void)
+{
     dfuAppStatus.bStatus = OK;
     dfuAppStatus.bwPollTimeout0 = 0x00;
     dfuAppStatus.bwPollTimeout1 = 0x00;
@@ -64,8 +64,6 @@ void dfuInit(void) {
     dfuAppStatus.iString = 0x00;          /* all strings must be 0x00 until we make them! */
     userFirmwareLen = 0;
     thisBlockLen = 0;;
-    userAppAddr = USER_CODE_RAM; /* default RAM user code location */
-    userAppEnd = RAM_END;
     code_copy_lock = WAIT;
     dfuBusy = FALSE;
 }
@@ -89,7 +87,6 @@ bool dfuUpdateByRequest(void) {
             if (pInformation->USBwLengths.w > 0) {
                 userFirmwareLen = 0;
                 dfuAppStatus.bState  = dfuDNLOAD_SYNC;
-                userAppAddr = USER_CODE_FLASH0X8002000;
 
                 /* make sure the flash is setup properly, unlock it */
                 setupFLASH();
@@ -108,11 +105,6 @@ bool dfuUpdateByRequest(void) {
             
             /* calculate where the data should be copied from */
             userFirmwareLen = uploadBlockLen * pInformation->USBwValue;
-			
-            if (pInformation->Current_AlternateSetting == 0) {
-                userAppAddr = USER_CODE_FLASH0X8002000;
-                userAppEnd = getFlashEnd();
-			}
         } else if (pInformation->USBbRequest == DFU_ABORT) {
             dfuAppStatus.bState  = dfuIDLE;
             dfuAppStatus.bStatus = OK;  /* are we really ok? we were just aborted */
@@ -227,13 +219,13 @@ bool dfuUpdateByRequest(void) {
             if (pInformation->USBwLengths.w > 0) {
                 /* check that this is not the last possible block */
                 userFirmwareLen = uploadBlockLen * pInformation->USBwValue;
-                if (userAppAddr + userFirmwareLen + uploadBlockLen <= userAppEnd) {
+                if (USER_CODE_FLASH0X8002000 + userFirmwareLen + uploadBlockLen <= getFlashEnd()) {
                     thisBlockLen = uploadBlockLen;
                     dfuAppStatus.bState  = dfuUPLOAD_IDLE;
                 } else {
                     /* if above comparison was just equal, thisBlockLen becomes zero
                     next time when USBWValue has been increased by one */
-                    thisBlockLen = userAppEnd - userAppAddr - userFirmwareLen;
+                    thisBlockLen = getFlashEnd() - USER_CODE_FLASH0X8002000 - userFirmwareLen;
                     
                     /* check for overflow due to USBwValue out of range */
                     if (thisBlockLen >= pInformation->USBwLengths.w) {
@@ -340,7 +332,7 @@ u8 *dfuCopyUPLOAD(u16 length) {
         pInformation->Ctrl_Info.Usb_wLength = thisBlockLen - pInformation->Ctrl_Info.Usb_wOffset;
         return NULL;
     } else {
-        return((u8*) userAppAddr + userFirmwareLen + pInformation->Ctrl_Info.Usb_wOffset);
+        return((u8*) USER_CODE_FLASH0X8002000 + userFirmwareLen + pInformation->Ctrl_Info.Usb_wOffset);
     }
 }
 

@@ -63,9 +63,6 @@
 // Jump locations for legacy (0x8005000) and new / smaller (0x8002000) bootloader
 #define USER_CODE_FLASH0X8002000	((u32)0x08002000)
 
-// Upload to RAM has been removed / depreacted so these values a not used any more
-#define USER_CODE_RAM     			((u32)0x20000C00)
-
 // RAM_END, set ram end to the end of ram on the device wth the least RAM (STM32F103C)
 // btw whoever did this, this is poor as shit practice, come on now
 #define RAM_END           			((u32)0x20005000)
@@ -362,11 +359,30 @@
     #define LED_PIN          5
     #define LED_ON_STATE     1
 
+    #ifndef USB_VENDOR_STR_LEN
+    #define USB_VENDOR_STR_LEN 30
+    #define USB_VENDOR_MSG_STR 'D', 0, 'i', 0, 'g', 0, 'i', 0, 't', 0, 'r', 0, 'o', 0, 'l', 0, 'l', 0, ' ', 0, 'L', 0, 't', 0, 'd', 0, '.', 0
+    #endif
+
+    #ifndef USB_PRODUCT_STR_LEN
+    #define USB_PRODUCT_STR_LEN 42
+    #define USB_PRODUCT_MSG_STR 'X', 0, 'L', 0, 'i', 0, 'N', 0, 'E', 0, '-', 0, 'U', 0, 'S', 0, 'B', 0, ' ', 0, \
+                                'b', 0, 'o', 0, 'o', 0, 't', 0, 'l', 0, 'o', 0, 'a', 0, 'd', 0, 'e', 0, 'r', 0,
+    #endif
+
+    #ifndef USB_SERIAL_STR_LEN
+    #define USB_SERIAL_STR_LEN 0x10
+    #define USB_SERIAL_MSG_STR 'L', 0, 'L', 0, 'M', 0, ' ', 0, '0', 0, '0', 0, '3', 0
+    #endif
+
     #define CUSTOM_ALT_STRINGS
     #define ALT0_STR_LEN 42
     #define ALT0_MSG_STR 'X', 0, 'L', 0, 'i', 0, 'N', 0, 'E', 0, '-', 0, 'U', 0, 'S', 0, 'B', 0, ' ', 0, \
                          'b', 0, 'o', 0, 'o', 0, 't', 0, 'l', 0, 'o', 0, 'a', 0, 'd', 0, 'e', 0, 'r', 0,
 
+    #define XTAL16M
+
+    #define FLASH_PAGE_SIZE 1024
 #else
 	
 	#error "No config for this target or no target specified"
